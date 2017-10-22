@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/ISA___LDAP_Server.dir/main.cpp.o CMakeFiles/ISA___LDAP_Server.dir/Connection.cpp.o CMakeFiles/ISA___LDAP_Server.dir/Messages.cpp.o  -o ISA___LDAP_Server 
