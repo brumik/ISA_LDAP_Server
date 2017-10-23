@@ -20,6 +20,8 @@ database_t Database::get_db_from_csv(string filename)
 	try {
 		inStream.open(filename);
 		
+		if ( !inStream ) throw runtime_error("File not found or could not be opened.");
+		
 		while   (	getline(inStream, temp.cn, ';') &&
 		            getline(inStream, temp.uid,   ';') &&
 		            getline(inStream, temp.mail)

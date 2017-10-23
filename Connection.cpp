@@ -6,10 +6,9 @@
 
 using namespace std;
 
-Connection::Connection(int port, string& filename)
+Connection::Connection(int port)
 {
 	this->port = port;
-	this->filename = filename;
 }
 
 void Connection::serverUp()

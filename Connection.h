@@ -18,7 +18,6 @@ class Connection {
 
 private:
     int port;
-    std::string filename;
 
     int server_sock;
     int socket_desc;
@@ -28,9 +27,8 @@ public:
      * Constructor for server.
      *
      * @param port The port to run the server
-     * @param file The file where the information is stored.
      */
-    Connection(int port, std::string& filename);
+    Connection(int port);
 
     /**
      * Prepares the server to listen and starts to listen.
