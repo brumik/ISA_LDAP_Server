@@ -1,3 +1,0 @@
-/home/levente/CLionProjects/ISA_LDAP_Server/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/levente/CLionProjects/ISA_LDAP_Server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/levente/CLionProjects/ISA_LDAP_Server/cmake-build-debug/CMakeFiles/ISA_LDAP_Server.dir

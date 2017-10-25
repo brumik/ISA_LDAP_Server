@@ -1,4 +1,0 @@
-/home/levente/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/172.4343.16/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/levente/CLionProjects/ISA_LDAP_Server
--- Configuring done
--- Generating done
--- Build files have been written to: /home/levente/CLionProjects/ISA_LDAP_Server/cmake-build-debug
