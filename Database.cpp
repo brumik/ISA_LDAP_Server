@@ -8,14 +8,14 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
-database_t Database::get_db_from_csv(string filename)
+Database::Database(const string& filename)
 {
-	database_t db;
 	ifstream inStream;
-	database_entry temp;
+	DatabaseEntry temp;
 	
 	try {
 		inStream.open(filename);
@@ -27,38 +27,120 @@ database_t Database::get_db_from_csv(string filename)
 		            getline(inStream, temp.mail)
 				)
 		{
-			db.push_back(temp);
+			this->add_entry(temp);
 		}
 		
 		inStream.close();
 	} catch (...) {
 		throw;
 	}
-	
-	return db;
 }
 
-database_t Database::filter_by_cn(const std::string &filter, database_t db)
+void Database::add_entry(const DatabaseEntry &entry)
 {
-	database_t passed_entries;
+	db.push_back(entry);
+}
+
+string Database::get_entry_variable(const DatabaseEntry& entry, const string& type)
+{
+	if ( type == "cn" )
+		return entry.cn;
+	if ( type == "uid" )
+		return entry.uid;
+	if ( type == "mail" )
+		return entry.mail;
 	
-	for (auto &entry : db)
-	{
-		if ( entry.cn.find(filter) != string::npos )
-			passed_entries.push_back(entry);
-	}
+	return nullptr;
+}
+
+Database Database::filter_by(const std::string& type, const std::string &filter)
+{
+	Database passed_entries;
+	
+	for (auto &entry : this->db)
+		if ( get_entry_variable(entry, type).find(filter) != string::npos )
+			passed_entries.add_entry(entry);
 	
 	return passed_entries;
 }
 
-std::string Database::toString(database_t db)
+Database Database::filter_by_exact(const std::string &type, const std::string &filter)
+{
+	Database passed_entries;
+	
+	for (auto &entry : this->db)
+		if ( get_entry_variable(entry, type) == filter )
+			passed_entries.add_entry(entry);
+	
+	return passed_entries;
+}
+
+Database Database::filter_by_cn(const std::string &filter, const bool exact)
+{
+	if ( exact )
+		return this->filter_by_exact("cn", filter);
+	else
+		return this->filter_by("cn", filter);
+}
+
+Database Database::filter_by_uid(const std::string &filter)
+{
+	return this->filter_by("uid", filter);
+}
+
+Database Database::filter_by_mail(const std::string &filter)
+{
+	return this->filter_by("mail", filter);
+}
+
+Database Database::filter_not(Database exclude)
+{
+	Database passed_entries;
+	
+	sort(exclude.db.begin(), exclude.db.end());
+	sort(db.begin(), db.end());
+	
+	set_difference(db.begin(), db.end(),
+	               exclude.db.begin(), exclude.db.end(),
+	               back_inserter(passed_entries.db));
+	
+	return passed_entries;
+}
+
+Database Database::filter_and(Database intersect)
+{
+	Database passed_entries;
+	
+	sort(intersect.db.begin(), intersect.db.end());
+	sort(db.begin(), db.end());
+	
+	set_intersection(intersect.db.begin(), intersect.db.end(),
+	                 db.begin(), db.end(),
+	                 back_inserter(passed_entries.db));
+	
+	return passed_entries;
+}
+
+Database Database::filter_or(Database db_union)
+{
+	Database passed_entries;
+	
+	sort(db_union.db.begin(), db_union.db.end());
+	sort(db.begin(), db.end());
+	
+	set_union(db_union.db.begin(), db_union.db.end(),
+	                 db.begin(), db.end(),
+	                 back_inserter(passed_entries.db));
+	
+	return passed_entries;
+}
+
+string Database::toString()
 {
 	stringstream ofs;
 	
 	for (auto &entry : db)
-	{
 		ofs << entry.cn << ", " << entry.uid << ", " << entry.mail << endl;
-	}
 	
 	return ofs.str();
 }

@@ -31,6 +31,8 @@ iostream
 -
 sstream
 -
+algorithm
+-
 
 /home/levente/CLionProjects/ISA_LDAP_Server/Database.h
 string

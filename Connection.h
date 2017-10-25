@@ -17,8 +17,9 @@ const int BUFFER_SIZE = 512;
 class Connection {
 
 private:
-    int port;
-
+    long port;
+	std::string filename;
+	
     int server_sock;
     int socket_desc;
 
@@ -27,15 +28,23 @@ public:
      * Constructor for server.
      *
      * @param port The port to run the server
+     * @param filename The path to the database csv.
      */
-    Connection(int port);
+    Connection(long port, const std::string& filename);
+	
+	/**
+	 * Filename getter.
+	 *
+	 * @return Filename
+	 */
+	std::string get_filename();
 
     /**
      * Prepares the server to listen and starts to listen.
      *
      * @return Return true if succeeded otherwise false.
      */
-    void serverUp();
+    void server_up();
 
     /**
      * Starts a bind loop to accepting incoming requests.
@@ -43,7 +52,7 @@ public:
      *
      * @param callback Function to pass to a newly forked process.
      */
-    void acceptLoop(void (*callback)(Connection));
+    void accept_loop(void (*callback)(Connection));
 
     /**
      * Returns the data as string sent to the server.
@@ -51,14 +60,14 @@ public:
      *
      * @return String containing message received.
      */
-    std::string getMessage();
+    std::string get_message();
 
     /**
      * Sends the given string to the connected client.
      *
      * @return True on success, otherwise false.
      */
-    void sendMessage(const std::string& msg);
+    void send_message(const std::string &msg);
 
     /**
      * Destructor, closes all sockets.

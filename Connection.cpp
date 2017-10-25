@@ -6,12 +6,18 @@
 
 using namespace std;
 
-Connection::Connection(int port)
+Connection::Connection(long port, const string& filename)
 {
 	this->port = port;
+	this->filename = filename;
 }
 
-void Connection::serverUp()
+string Connection::get_filename()
+{
+	return filename;
+}
+
+void Connection::server_up()
 {
 	struct sockaddr_in server;
 
@@ -29,7 +35,7 @@ void Connection::serverUp()
 	listen(server_sock, 3);
 }
 
-void Connection::acceptLoop(void (*callback)(Connection))
+void Connection::accept_loop(void (*callback)(Connection))
 {
 	struct sockaddr_in client;
 	int c = sizeof(struct sockaddr_in);
@@ -46,7 +52,7 @@ void Connection::acceptLoop(void (*callback)(Connection))
 	}
 }
 
-string Connection::getMessage()
+string Connection::get_message()
 {
 	char buffer[BUFFER_SIZE];
 	long readSize = 0;
@@ -64,7 +70,7 @@ string Connection::getMessage()
 	return msg;
 }
 
-void Connection::sendMessage(const string& msg)
+void Connection::send_message(const string &msg)
 {
 	while ( send(socket_desc, msg.c_str(), msg.length(), 0) != msg.length() )
 		throw runtime_error("Sending failed.");
