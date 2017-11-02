@@ -2,6 +2,7 @@
 #include <getopt.h>
 #include "Connection.h"
 #include "Database.h"
+#include "Decode.h"
 
 #define E_WRONG_ARGS 1
 
@@ -9,7 +10,6 @@ using namespace std;
 
 void process_request(Connection con)
 {
-	
 	// Creating the database from the file given.
 	try {
 		Database db(con.get_filename());
@@ -17,14 +17,15 @@ void process_request(Connection con)
 		cerr << "Runtime error occurred in the child process creating the database: " << e.what() << endl;
 	}
 	
-    cout << "New client connected" << endl;
 	try {
-		string msg = con.get_message();
-		cout << "Message is: " << msg << endl;
+		string message = con.get_message();
+		LDAPMessage msg = Decode().decode_to_struct(message);
+		cout << "MessageID is: " << msg.MessageID << endl;
+		cout << "Client Version is: " << msg.BindRequest.Version << endl;
+		cout << "Client Name is: " << msg.BindRequest.Name << endl;
 	} catch (const runtime_error &e) {
 		cerr << "Runtime Error occurred:" << e.what() << endl;
 	}
-	cout << "Klient serving ended." << endl;
 	
 	exit(0);
 }

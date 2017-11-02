@@ -7,6 +7,8 @@
  * Listening, binding, sending and receiving data is done trough these functions.
  */
 
+// TODO MAKE IT NON BLOCKING ( SOCK_STREAM | SOCK_NONBLOCK )
+
 #ifndef ISA_LDAP_SERVER_CONNECTION_H
 #define ISA_LDAP_SERVER_CONNECTION_H
 
@@ -53,7 +55,7 @@ public:
      * @param callback Function to pass to a newly forked process.
      */
     void accept_loop(void (*callback)(Connection));
-
+	
     /**
      * Returns the data as string sent to the server.
      * Throws exception on bad data transfer,

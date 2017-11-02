@@ -2,6 +2,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
+#include <sstream>
+#include <iomanip>
+#include <bitset>
 #include "Connection.h"
 
 using namespace std;
@@ -54,20 +57,28 @@ void Connection::accept_loop(void (*callback)(Connection))
 
 string Connection::get_message()
 {
-	char buffer[BUFFER_SIZE];
+	unsigned char buffer[BUFFER_SIZE];
 	long readSize = 0;
-	string msg;
+	stringstream msg;
 	
 	memset(buffer, 0, BUFFER_SIZE);
 	while ((readSize = recv(socket_desc, buffer, BUFFER_SIZE, 0)) > 0) {
-		msg += buffer;
+		
+		// Converting the buffer into hex string.
+		for (int i = 0; i < readSize; i++)
+			msg << setfill('0') << setw(2) << hex << bitset<8>(buffer[i]).to_ulong();
+		
+		// Reset buffer
 		memset(buffer, 0, BUFFER_SIZE);
+		
+		// If the read was smaller than the buffer the message is ended.
+		if ( readSize <= BUFFER_SIZE ) break;
 	}
 	
 	if (readSize < 0)
 		throw runtime_error("Bad socket transfer when receiving file.");
 	
-	return msg;
+	return msg.str();
 }
 
 void Connection::send_message(const string &msg)
