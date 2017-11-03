@@ -9,28 +9,14 @@
 #define ISA_LDAP_SERVER_DECODE_H
 
 #include <string>
-
-struct BindRequest {
-	unsigned long Version = 0;
-	std::string Name;
-	std::string Auth;
-};
-
-struct LDAPMessage {
-	unsigned long MessageID = 0;
-	struct BindRequest BindRequest;
-};
+#include "Codes.h"
+#include "Error.h"
 
 class Decode {
 private:
-	const char* C_LDAPMessage = "30";
-	const char* C_BindRequest = "60";
-	const char* C_INTEGER = "02";
-	const char* C_OCTET_STRING = "04";
-	const char* C_SIMPLE_AUTH = "8000";
-
 	std::string hex_message;
 	unsigned int position;
+	Error error;
 	
 	/**
 	 * Returns the next two characters from string and deletes them from the hex message.
@@ -94,6 +80,13 @@ public:
 	 * @param to_decode The string to decode.
 	 */
 	LDAPMessage decode_to_struct(std::string &to_decode);
+	
+	/**
+	 * Error getter.
+	 *
+	 * @return The error object.
+	 */
+	Error get_error();
 	
 };
 
