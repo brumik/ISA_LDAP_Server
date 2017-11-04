@@ -32,6 +32,14 @@ string Encode::create_number(unsigned long number)
 	return string(Codes::INTEGER) + hex_size + hex_number;
 }
 
+std::string Encode::create_enum(unsigned long number)
+{
+	string hex_number = number_to_hex(number);
+	string hex_size = size_to_hex(hex_number.length());
+	
+	return string(Codes::ENUMERATED) + hex_size + hex_number;
+}
+
 string Encode::string_to_hex(const string &str)
 {
 	ostringstream ret;
@@ -53,21 +61,13 @@ string Encode::create_string(const std::string &str)
 
 string Encode::bind_response_to_hex(const struct BindResponse &bindResponse)
 {
-	string resultCode;
-	string MatchedDN;
-	string ErrorMessage;
-	string ret;
+	string resultCode = create_enum(bindResponse.ResultCode);
+	string MatchedDN = create_string(bindResponse.MatchedDN);
+	string ErrorMessage = create_string(bindResponse.ErrorMessage);
 	
-	resultCode = create_number(bindResponse.ResultCode);
-	MatchedDN = create_string(bindResponse.MatchedDN);
-	ErrorMessage = create_string(bindResponse.ErrorMessage);
-	
-	ret = Codes::BindResponse;
+	string ret = Codes::BindResponse;
 	ret += size_to_hex( resultCode.length() + MatchedDN.length() + ErrorMessage.length() );
-	ret += resultCode;
-	ret += MatchedDN;
-	ret += ErrorMessage;
-	
+	ret += resultCode + MatchedDN + ErrorMessage;
 	return ret;
 }
 

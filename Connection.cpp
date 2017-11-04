@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <bitset>
+#include <vector>
 #include "Connection.h"
 
 using namespace std;
@@ -30,7 +31,7 @@ void Connection::server_up()
 	
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(port);
+	server.sin_port = htons((uint16_t)port);
 	
 	if (bind(server_sock, (struct sockaddr *) &server, sizeof(server)) < 0)
 		throw runtime_error("Binding failed.");
@@ -81,10 +82,26 @@ string Connection::get_message()
 	return msg.str();
 }
 
+vector<unsigned char> Connection::hex_to_bytes(const string& hex) {
+	vector<unsigned char> bytes;
+	unsigned char byte;
+	string byteStr;
+	
+	for (unsigned int i = 0; i < hex.length(); i += 2) {
+		byteStr = hex.substr(i, 2);
+		byte = (unsigned char)strtol(byteStr.c_str(), nullptr, 16);
+		bytes.push_back(byte);
+	}
+	
+	return bytes;
+}
+
 void Connection::send_message(const string &msg)
 {
-	while ( send(socket_desc, msg.c_str(), msg.length(), 0) != msg.length() )
+	vector<unsigned char> message = hex_to_bytes(msg);
+	while ( send(socket_desc, &message[0], message.size(), 0) != message.size() )
 		throw runtime_error("Sending failed.");
+	
 }
 
 Connection::~Connection()

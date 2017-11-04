@@ -13,6 +13,7 @@
 #define ISA_LDAP_SERVER_CONNECTION_H
 
 #include <string>
+#include <vector>
 
 const int BUFFER_SIZE = 512;
 
@@ -63,12 +64,19 @@ public:
      * @return String containing message received.
      */
     std::string get_message();
-
-    /**
-     * Sends the given string to the connected client.
-     *
-     * @return True on success, otherwise false.
-     */
+	
+	/**
+	 * Converts hex string to bytes.
+	 * @param hex The hex string.
+	 * @return Bytes vector.
+	 */
+	std::vector<unsigned char> hex_to_bytes(const std::string& hex);
+	
+	/**
+	 * Sends the given string to the connected client.
+	 *
+	 * @return True on success, otherwise false.
+	 */
     void send_message(const std::string &msg);
 
     /**

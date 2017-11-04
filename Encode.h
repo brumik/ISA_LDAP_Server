@@ -38,6 +38,14 @@ private:
 	std::string create_number(unsigned long number);
 	
 	/**
+	 * Covert number with type, size, value to enumerated hex.
+	 *
+	 * @param number The value of enumerate.
+	 * @return The hex string generated from enumerated number.
+	 */
+	std::string create_enum(unsigned long number);
+	
+	/**
 	 * Converts string to hex.
 	 *
 	 * @param str The string to convert.

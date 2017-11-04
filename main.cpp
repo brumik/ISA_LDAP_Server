@@ -40,11 +40,13 @@ void process_request(Connection con)
 		ldapMessage_send.MessageType = Codes::BindResponse;
 		
 		ldapMessage_send.BindResponse.ResultCode = decoder.get_error().get_code();
-		// Todo Matched DN - what to do with it?
-		ldapMessage_send.BindResponse.MatchedDN = ldapMessage_rec.BindRequest.Name;
+		ldapMessage_send.BindResponse.MatchedDN = "";
 		ldapMessage_send.BindResponse.ErrorMessage = decoder.get_error().get_message();
-		cout << encoder.structure_to_hex(ldapMessage_send) << endl;
+		msg = encoder.structure_to_hex(ldapMessage_send);
+		con.send_message(msg);
 	}
+	
+	cout << "Got: " << con.get_message() << endl;
 	
 	exit(EXIT_SUCCESS);
 }

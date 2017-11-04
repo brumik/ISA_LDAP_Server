@@ -34,6 +34,7 @@ class Codes {
 public:
 	static constexpr const char* INTEGER = "02";
 	static constexpr const char* OCTET_STRING = "04";
+	static constexpr const char* ENUMERATED = "0a";
 	
 	// Structure types
 	static constexpr const char* LDAPMessage = "30";
