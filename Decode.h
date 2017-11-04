@@ -49,11 +49,33 @@ private:
 	unsigned long get_integer(int max_length = 255);
 	
 	/**
+	 * Returns the next boolean value grom hex_message.
+	 *
+	 * @return True or false from the HEX string.
+	 */
+	bool get_bool();
+	
+	/**
+	 * Converts HEX encoded string to ASCII.
+	 *
+	 * @param hex Hex encoded string.
+	 * @return The ASCII string.
+	 */
+	std::string hex_to_string(const std::string &hex);
+	
+	/**
 	 * Gets a string from the hex string.
 	 *
-	 * @return String containing ASCI values of HEX numbers.
+	 * @return String containing ASCII values of HEX numbers.
 	 */
 	std::string get_string();
+	
+	/**
+	 * Gets an enum from the hex_message.
+	 *
+	 * @return The enum number.
+	 */
+	unsigned long get_enum();
 	
 	/**
 	 * Returns the integer from the HEX string.
@@ -63,10 +85,39 @@ private:
 	unsigned long get_messageID();
 	
 	/**
-	 * Fils and returns an bind request from the hex_message.
-	 * @return The bind request structure.
+	 * Fills and returns an bind request from the hex_message.
+	 *
+	 * @return The bind request structure filled.
 	 */
-	BindRequest get_bindRequest();
+	BindRequest_t get_bindRequest();
+	
+	/**
+	 * Fills and returns an Substring Item from the hex_message.
+	 *
+	 * @return The Substring Item structure filled.
+	 */
+	Substring_Item_t get_substring_item();
+	
+	/**
+	 * Fills and returns a Substring from the hex_message.
+	 *
+	 * @return Filled substring.
+	 */
+	Substrings_t get_substrings();
+	
+	/**
+	 * Fills and returns a Filter structure from the hex_message.
+	 *
+	 * @return Filled filter.
+	 */
+	Filter_t get_filter();
+	
+	/**
+	 * Fills and return a search request structure from the hex_message.
+	 *
+	 * @return The search request structure filled.
+	 */
+	SearchRequest_t get_searchRequest();
 	
 public:
 	
@@ -79,7 +130,7 @@ public:
 	 * Constructor.
 	 * @param to_decode The string to decode.
 	 */
-	LDAPMessage decode_to_struct(std::string &to_decode);
+	LDAPMessage_t decode_to_struct(std::string &to_decode);
 	
 	/**
 	 * Error getter.

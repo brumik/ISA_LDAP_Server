@@ -24,7 +24,7 @@ void process_request(Connection con)
 	// Variables used
 	Decode decoder;
 	Encode encoder;
-	LDAPMessage ldapMessage_rec, ldapMessage_send;
+	LDAPMessage_t ldapMessage_rec, ldapMessage_send;
 	string msg;
 	
 	try {
@@ -35,9 +35,9 @@ void process_request(Connection con)
 	}
 	
 	// Creating and sending response
-	if ( ldapMessage_rec.MessageType == Codes::BindRequest ) {
+	if ( ldapMessage_rec.MessageType == LDAPMessageType_t ::BindRequest ) {
 		ldapMessage_send.MessageID = ldapMessage_rec.MessageID;
-		ldapMessage_send.MessageType = Codes::BindResponse;
+		ldapMessage_send.MessageType = LDAPMessageType_t::BindResponse;
 		
 		ldapMessage_send.BindResponse.ResultCode = decoder.get_error().get_code();
 		ldapMessage_send.BindResponse.MatchedDN = "";

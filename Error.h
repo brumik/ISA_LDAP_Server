@@ -8,22 +8,14 @@
 #define ISA_LDAP_SERVER_ERRORS_H
 
 #include <string>
+#include "Codes.h"
 
 class Error {
 private:
-	unsigned code;
+	ResultCode_e code;
 	std::string message;
 	
 public:
-	
-	// Error codes
-	static const unsigned SUCCESS = 0;
-	static const unsigned OPERATIONS_ERROR = 1;
-	static const unsigned PROTOCOL_ERROR = 2;
-	static const unsigned TIME_LIMIT_EXCEED = 3;
-	static const unsigned SIZE_LIMIT_EXCEED = 4;
-	static const unsigned AUTH_NOT_SUPPORTED = 7;
-
 	/**
 	 * Constructor for error.
 	 */
@@ -42,7 +34,7 @@ public:
 	 *
 	 * @return COde attribute value.
 	 */
-	unsigned get_code();
+	ResultCode_e get_code();
 	
 	/**
 	 * Message getter.

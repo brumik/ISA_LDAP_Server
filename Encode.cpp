@@ -59,9 +59,9 @@ string Encode::create_string(const std::string &str)
 	return ret;
 }
 
-string Encode::bind_response_to_hex(const struct BindResponse &bindResponse)
+string Encode::bind_response_to_hex(const struct BindResponse_t &bindResponse)
 {
-	string resultCode = create_enum(bindResponse.ResultCode);
+	string resultCode = create_enum(static_cast<unsigned>(bindResponse.ResultCode));
 	string MatchedDN = create_string(bindResponse.MatchedDN);
 	string ErrorMessage = create_string(bindResponse.ErrorMessage);
 	
@@ -71,7 +71,7 @@ string Encode::bind_response_to_hex(const struct BindResponse &bindResponse)
 	return ret;
 }
 
-string Encode::structure_to_hex(const LDAPMessage &ldapMessage)
+string Encode::structure_to_hex(const LDAPMessage_t &ldapMessage)
 {
 	string messageStructure;
 	string messageID;
@@ -79,7 +79,7 @@ string Encode::structure_to_hex(const LDAPMessage &ldapMessage)
 	
 	messageID = create_number(ldapMessage.MessageID);
 	
-	if ( ldapMessage.MessageType == Codes::BindResponse ) {
+	if ( ldapMessage.MessageType == LDAPMessageType_t::BindResponse ) {
 		messageStructure = bind_response_to_hex(ldapMessage.BindResponse);
 	} else {
 		throw runtime_error("Unrecognized message type to create.");

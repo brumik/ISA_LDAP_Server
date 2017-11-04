@@ -6,20 +6,21 @@
  */
 
 #include "Error.h"
+#include "Codes.h"
 
 Error::Error()
 {
-	code = SUCCESS;
+	code = ResultCode_e::SUCCESS;
 	message = "";
 }
 
 void Error::set_error(unsigned code, const std::string &message)
 {
-	this->code = code;
+	this->code = static_cast<ResultCode_e>(code);
 	this->message = message;
 }
 
-unsigned Error::get_code()
+ResultCode_e Error::get_code()
 {
 	return code;
 }
@@ -31,6 +32,6 @@ std::string Error::get_message()
 
 void Error::clear()
 {
-	code = SUCCESS;
+	code = ResultCode_e::SUCCESS;
 	message = "";
 }

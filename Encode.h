@@ -67,7 +67,7 @@ private:
 	 * @param bindResponse The structure to convert.
 	 * @return The converted BindResponse structure in hex string.
 	 */
-	std::string bind_response_to_hex(const struct BindResponse &bindResponse);
+	std::string bind_response_to_hex(const struct BindResponse_t &bindResponse);
 	
 public:
 	
@@ -77,7 +77,7 @@ public:
 	 * @param ldapMessage The structure to convert to hex.
 	 * @return HEX encoded LDAPMessage.
 	 */
-	std::string structure_to_hex(const LDAPMessage &ldapMessage);
+	std::string structure_to_hex(const LDAPMessage_t &ldapMessage);
 };
 
 
