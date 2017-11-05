@@ -62,13 +62,29 @@ private:
 	std::string create_string(const std::string &str);
 	
 	/**
-	 * Converts BindResponse structure to hex.
+	 * Creates a partial attribute hex string.
 	 *
-	 * @param bindResponse The structure to convert.
-	 * @return The converted BindResponse structure in hex string.
+	 * @param attr The attribute to create string from.
+	 * @return Hex string representing the attribute.
 	 */
-	std::string bind_response_to_hex(const struct BindResponse_t &bindResponse);
+	std::string create_partial_attribute(const PartialAttributeList_t &attribute);
 	
+	/**
+	 * Converts LDAP Result structure to hex.
+	 *
+	 * @param result The structure to convert.
+	 * @return The converted Result structure in hex string.
+	 */
+	std::string struct_to_hex(const LDAPResult_t &result, const std::string &code);
+	
+	/**
+	 * Converts an SearchEntry structure to hex.
+	 *
+	 * @param entry The entry to convert.
+	 * @return The converted SearchEntry structure in hex string.
+	 */
+	std::string struct_to_hex(const SearchResultEntry_t &entry);
+
 public:
 	
 	/**
@@ -77,7 +93,7 @@ public:
 	 * @param ldapMessage The structure to convert to hex.
 	 * @return HEX encoded LDAPMessage.
 	 */
-	std::string structure_to_hex(const LDAPMessage_t &ldapMessage);
+	std::string struct_to_hex(const LDAPMessage_t &ldapMessage);
 };
 
 

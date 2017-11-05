@@ -4,6 +4,7 @@
 #include "Database.h"
 #include "Decode.h"
 #include "Encode.h"
+#include "Logger.h"
 
 #define EXIT_SUCCESS    0
 #define E_WRONG_ARGS    1
@@ -31,22 +32,68 @@ void process_request(Connection con)
 		msg = con.get_message();
 		ldapMessage_rec = decoder.decode_to_struct(msg);
 	} catch (const runtime_error &e) {
-		cerr << "Runtime Error occurred:" << e.what() << endl;
+		cerr << "Runtime Error occurred: " << e.what() << endl;
+		exit(E_RUNTIME_ERROR);
 	}
 	
 	// Creating and sending response
-	if ( ldapMessage_rec.MessageType == LDAPMessageType_t ::BindRequest ) {
+	if ( ldapMessage_rec.MessageType == LDAPMessageType_t::BindRequest ) {
 		ldapMessage_send.MessageID = ldapMessage_rec.MessageID;
 		ldapMessage_send.MessageType = LDAPMessageType_t::BindResponse;
 		
-		ldapMessage_send.BindResponse.ResultCode = decoder.get_error().get_code();
-		ldapMessage_send.BindResponse.MatchedDN = "";
-		ldapMessage_send.BindResponse.ErrorMessage = decoder.get_error().get_message();
-		msg = encoder.structure_to_hex(ldapMessage_send);
+		ldapMessage_send.LDAPResult.ResultCode = decoder.get_error().get_code();
+		ldapMessage_send.LDAPResult.MatchedDN = "";
+		ldapMessage_send.LDAPResult.ErrorMessage = decoder.get_error().get_message();
+		msg = encoder.struct_to_hex(ldapMessage_send);
 		con.send_message(msg);
 	}
 	
-	cout << "Got: " << con.get_message() << endl;
+	// Search Request
+	try {
+		msg = con.get_message();
+		ldapMessage_rec = decoder.decode_to_struct(msg);
+	} catch (runtime_error &e) {
+		cerr << "Runtime Error occurred: " << e.what() << endl;
+		exit(E_RUNTIME_ERROR);
+	}
+	
+	if ( ldapMessage_rec.MessageType == LDAPMessageType_t::SearchRequest ) {
+		ldapMessage_send.MessageID = ldapMessage_rec.MessageID;
+		ldapMessage_send.MessageType = LDAPMessageType_t::SearchResultEntry;
+		
+		ldapMessage_send.SearchResultEntry.ObjectName = "uid=xberky02";
+		
+		PartialAttributeList_t attr;
+		attr.Type = "cn"; attr.Values.emplace_back("Levente Berky");
+		ldapMessage_send.SearchResultEntry.Attributes.push_back(attr);
+		
+		attr.Values.clear();
+		attr.Type = "uid"; attr.Values.emplace_back("xberky02");
+		ldapMessage_send.SearchResultEntry.Attributes.push_back(attr);
+		msg = encoder.struct_to_hex(ldapMessage_send);
+		con.send_message(msg);
+		
+		ldapMessage_send.MessageType = LDAPMessageType_t::SearchResultDone;
+		ldapMessage_send.LDAPResult.ResultCode = decoder.get_error().get_code();
+		ldapMessage_send.LDAPResult.MatchedDN = "";
+		ldapMessage_send.LDAPResult.ErrorMessage = decoder.get_error().get_message();
+		msg = encoder.struct_to_hex(ldapMessage_send);
+		con.send_message(msg);
+	}
+	
+	// UnbindRequest
+	try {
+		msg = con.get_message();
+		ldapMessage_rec = decoder.decode_to_struct(msg);
+	} catch (runtime_error &e) {
+		cerr << "Runtime Error occurred: " << e.what() << endl;
+		exit(E_RUNTIME_ERROR);
+	}
+	
+	if ( ldapMessage_rec.MessageType != UnbindRequest ) {
+		cerr << "Expected UnbindRequest, got different" << endl;
+		exit(E_RUNTIME_ERROR);
+	}
 	
 	exit(EXIT_SUCCESS);
 }

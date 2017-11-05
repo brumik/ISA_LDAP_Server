@@ -34,6 +34,12 @@ private:
 	unsigned long get_size();
 	
 	/**
+	 * Returns the length of something in chars length from hex_message.
+	 * @return
+	 */
+	unsigned long get_size_in_char();
+	
+	/**
 	 * Controls if the specified length is same as the remaining message length.
 	 *
 	 * @return True is lentgh and remaining message length is same. Otherwise false.

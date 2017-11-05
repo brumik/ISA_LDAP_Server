@@ -30,7 +30,23 @@ string Decode::get_next_hex_string(unsigned long num)
 
 unsigned long Decode::get_size()
 {
-	return stoul(get_next_hex_string(), nullptr, 16);
+	string size = get_next_hex_string();
+	
+	if ( size == Codes::LengthSize1 )
+		size = get_next_hex_string(1);
+	else if ( size == Codes::LengthSize2 )
+		size = get_next_hex_string(2);
+	else if ( size == Codes::LengthSize3 )
+		size = get_next_hex_string(3);
+	else if ( size == Codes::LengthSize4 )
+		size = get_next_hex_string(4);
+		
+	return stoul(size, nullptr, 16);
+}
+
+unsigned long Decode::get_size_in_char()
+{
+	return get_size() * 2;
 }
 
 bool Decode::size_control()
@@ -169,8 +185,8 @@ Substrings_t Decode::get_substrings()
 {
 	Substrings_t substrings;
 	
-	unsigned long size = get_size();
-	unsigned long curr_position = position;
+	unsigned long size = get_size_in_char();
+	unsigned long end_position = position + size;
 	
 	try {
 		substrings.Type = get_string();
@@ -179,8 +195,14 @@ Substrings_t Decode::get_substrings()
 	}
 	
 	try {
+		if ( get_next_hex_string() != Codes::FilterSubstringItem )
+			throw runtime_error("Substring item not starting with sequence.");
+		
+		if ( get_size_in_char()  != end_position - position )
+			throw runtime_error("The substring length is inproper.");
+		
 		// While size specified read... they will be all substrings
-		while ( curr_position + size != position )
+		while ( end_position > position )
 			substrings.items.push_back( get_substring_item() );
 	} catch (runtime_error &e) {
 		throw runtime_error(string("Substring Items: ") + e.what());
@@ -209,6 +231,7 @@ Filter_t Decode::get_filter()
 		filter.Substrings = get_substrings();
 	} else if ( type == Codes::FilterEqualityMatch ) {
 		filter.Type = FilterType_e::EqualityMatch;
+		get_size(); // Todo What to do with size?
 		filter.EqualityMatch.AttributeDesc = get_string();
 		filter.EqualityMatch.AssertionValue = get_string();
 	} else {
@@ -300,11 +323,12 @@ LDAPMessage_t Decode::decode_to_struct(std::string &to_decode)
 	// Reset error message.
 	error.clear();
 	hex_message = to_decode;
+	position = 0;
 	LDAPMessage_t message;
 	
 	
 	if ( get_next_hex_string() != Codes::LDAPMessage ) {
-		error.set_error(ResultCode_e::PROTOCOL_ERROR, "Message is non LDAPMessage_t.");
+		error.set_error(ResultCode_e::PROTOCOL_ERROR, "Message is non LDAP Message.");
 		throw runtime_error(error.get_message());
 	}
 	
@@ -324,6 +348,8 @@ LDAPMessage_t Decode::decode_to_struct(std::string &to_decode)
 	} else if ( type == Codes::SearchRequest ) {
 		message.MessageType = LDAPMessageType_t::SearchRequest;
 		message.SearchRequest = get_searchRequest();
+	} else if ( type == Codes::UnbindRequest) {
+		message.MessageType = LDAPMessageType_t::UnbindRequest;
 	} else {
 		error.set_error(ResultCode_e::PROTOCOL_ERROR, "Unrecognized message type.");
 		throw runtime_error(error.get_message());

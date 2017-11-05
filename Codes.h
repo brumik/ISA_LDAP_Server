@@ -9,6 +9,7 @@
 #ifndef ISA_LDAP_SERVER_LDAPCODES_H
 #define ISA_LDAP_SERVER_LDAPCODES_H
 
+#include <sstream>
 #include <vector>
 
 struct BindRequest_t {
@@ -18,8 +19,8 @@ struct BindRequest_t {
 };
 
 /**
- * @defgroup BindResponse
- * This group contains all BindResponse structures
+ * @defgroup LDAPResult
+ * This group contains all LDAP Result structures
  * @{
  */
 
@@ -34,13 +35,13 @@ enum ResultCode_e {
 	AUTH_NOT_SUPPORTED,
 };
 
-struct BindResponse_t {
+struct LDAPResult_t {
 	ResultCode_e ResultCode = ResultCode_e::SUCCESS;
 	std::string MatchedDN = "";
 	std::string ErrorMessage = "";
 };
 
-/** @} */ // End of BindResponse
+/** @} */ // End of LDAPResult
 
 /**
  * @defgroup SearchRequest
@@ -87,25 +88,56 @@ struct SearchRequest_t {
 	Filter_t Filter;
 	std::vector<std::string> Attributes = {};
 };
+
 /** @} */ // End of SearchRequest_t
+
+/**
+ * @defgroup SearchResultEntry
+ * This group contains all SearchResultEntry structures
+ * @{
+ */
+
+struct PartialAttributeList_t {
+	std::string Type = "";
+	std::vector<std::string> Values;
+};
+
+struct SearchResultEntry_t {
+	std::string ObjectName = "";
+	std::vector<PartialAttributeList_t> Attributes;
+};
+
+/** */ // End of SearchResultEntry
+
+/**
+ * @defgroup LDAP Message
+ * This group contains all LDAP cover structures
+ * @{
+ */
 
 enum LDAPMessageType_t {
 	BindRequest,
 	BindResponse,
 	SearchRequest,
+	SearchResultEntry,
+	SearchResultDone,
+	UnbindRequest
 };
 
 struct LDAPMessage_t {
 	unsigned long MessageID = 0;
 	LDAPMessageType_t MessageType = LDAPMessageType_t::BindRequest;
-	struct BindRequest_t BindRequest;
-	struct BindResponse_t BindResponse;
-	struct SearchRequest_t SearchRequest;
+	BindRequest_t BindRequest;
+	LDAPResult_t LDAPResult;
+	SearchRequest_t SearchRequest;
+	SearchResultEntry_t SearchResultEntry;
 };
 
+/** @} */ // End of LDAP Message
 
 class Codes {
 public:
+	// Basic types
 	static constexpr const char* BOOLEAN = "01";
 	static constexpr const char* INTEGER = "02";
 	static constexpr const char* OCTET_STRING = "04";
@@ -114,9 +146,18 @@ public:
 	
 	// Structure types
 	static constexpr const char* LDAPMessage = "30";
+	static constexpr const char* UnbindRequest = "42";
 	static constexpr const char* BindRequest = "60";
 	static constexpr const char* BindResponse = "61";
 	static constexpr const char* SearchRequest = "63";
+	static constexpr const char* SearchResultEntry = "64";
+	static constexpr const char* SearchResultDone = "65";
+	
+	// Size length span
+	static constexpr const char* LengthSize1 = "81";
+	static constexpr const char* LengthSize2 = "82";
+	static constexpr const char* LengthSize3 = "83";
+	static constexpr const char* LengthSize4 = "84";
 	
 	// Filter
 	static constexpr const char* FilterAnd = "a0";
@@ -126,10 +167,15 @@ public:
 	static constexpr const char* FilterEqualityMatch = "a3";
 
 	// Filter Substring Item Types
+	static constexpr const char* FilterSubstringItem = "30";
 	static constexpr const char* FilterSubstringItemInitial = "80";
 	static constexpr const char* FilterSubstringItemAny = "81";
 	static constexpr const char* FilterSubstringItemFinal = "82";
+	
+	// Search Response Entry
+	static constexpr const char* ResponseEntryPartialAttribute = "30";
+	static constexpr const char* ResponseEntryPartialAttributeValues = "31";
+	
 };
-
 
 #endif

@@ -21,7 +21,15 @@ std::string Encode::number_to_hex(unsigned long number)
 
 string Encode::size_to_hex(unsigned long size)
 {
-	return number_to_hex(size / 2);
+	string number = number_to_hex(size / 2);
+	
+	switch( number.length() / 2 ) {
+		case 1: return number;
+		case 2: return Codes::LengthSize2 + number;
+		case 3: return Codes::LengthSize3 + number;
+		case 4: return Codes::LengthSize4 + number;
+		default: throw runtime_error("Was unable to convert size to hex.");
+	}
 }
 
 string Encode::create_number(unsigned long number)
@@ -59,19 +67,53 @@ string Encode::create_string(const std::string &str)
 	return ret;
 }
 
-string Encode::bind_response_to_hex(const struct BindResponse_t &bindResponse)
+string Encode::create_partial_attribute(const PartialAttributeList_t &attribute)
 {
-	string resultCode = create_enum(static_cast<unsigned>(bindResponse.ResultCode));
-	string MatchedDN = create_string(bindResponse.MatchedDN);
-	string ErrorMessage = create_string(bindResponse.ErrorMessage);
+	string type = create_string(attribute.Type);
 	
-	string ret = Codes::BindResponse;
+	// Values
+	string valueStrings;
+	for (auto &value : attribute.Values)
+		valueStrings += create_string(value);
+	
+	string values = Codes::ResponseEntryPartialAttributeValues;
+	values += size_to_hex(valueStrings.length());
+	values += valueStrings;
+	// End Values
+	
+	string ret = Codes::ResponseEntryPartialAttribute;
+	ret += size_to_hex( type.length() + values.length() );
+	ret += type + values;
+	return ret;
+}
+
+string Encode::struct_to_hex(const LDAPResult_t &result, const std::string &code)
+{
+	string resultCode = create_enum(static_cast<unsigned>(result.ResultCode));
+	string MatchedDN = create_string(result.MatchedDN);
+	string ErrorMessage = create_string(result.ErrorMessage);
+	
+	string ret = code;
 	ret += size_to_hex( resultCode.length() + MatchedDN.length() + ErrorMessage.length() );
 	ret += resultCode + MatchedDN + ErrorMessage;
 	return ret;
 }
 
-string Encode::structure_to_hex(const LDAPMessage_t &ldapMessage)
+string Encode::struct_to_hex(const SearchResultEntry_t &entry)
+{
+	string ObjectName = create_string(entry.ObjectName);
+	string Attributes;
+	
+	for (const PartialAttributeList_t &attr : entry.Attributes)
+		Attributes += create_partial_attribute(attr);
+	
+	string ret = Codes::SearchResultEntry;
+	ret += size_to_hex( ObjectName.length() + Attributes.length() );
+	ret += ObjectName + Attributes;
+	return ret;
+}
+
+string Encode::struct_to_hex(const LDAPMessage_t &ldapMessage)
 {
 	string messageStructure;
 	string messageID;
@@ -79,11 +121,16 @@ string Encode::structure_to_hex(const LDAPMessage_t &ldapMessage)
 	
 	messageID = create_number(ldapMessage.MessageID);
 	
-	if ( ldapMessage.MessageType == LDAPMessageType_t::BindResponse ) {
-		messageStructure = bind_response_to_hex(ldapMessage.BindResponse);
-	} else {
-		throw runtime_error("Unrecognized message type to create.");
-	}
+	if ( ldapMessage.MessageType == LDAPMessageType_t::BindResponse )
+		messageStructure = struct_to_hex(ldapMessage.LDAPResult, Codes::BindResponse);
+		
+	else if ( ldapMessage.MessageType == LDAPMessageType_t::SearchResultEntry )
+		messageStructure = struct_to_hex(ldapMessage.SearchResultEntry);
+		
+	else if ( ldapMessage.MessageType == LDAPMessageType_t::SearchResultDone )
+		messageStructure = struct_to_hex(ldapMessage.LDAPResult, Codes::SearchResultDone);
+	
+	else throw runtime_error("Unrecognized message type to create.");
 	
 	
 	ret = Codes::LDAPMessage;
