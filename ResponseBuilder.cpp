@@ -96,6 +96,9 @@ vector<LDAPMessage_t> ResponseBuilder::generate_entries_response(const LDAPMessa
 
 		// Save message
 		messages.push_back(message);
+		if ( request.SearchRequest.SizeLimit != 0)
+			if ( messages.size() >= request.SearchRequest.SizeLimit )
+				break;
 	}
 	
 	return messages;

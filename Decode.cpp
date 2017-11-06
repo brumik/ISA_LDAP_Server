@@ -2,7 +2,7 @@
  * @file Decode.cpp
  * @author Levente Berky
  *
- * TODO
+ * This file contains the class to decode the hex message with requests.
  */
 
 #include <sstream>
@@ -61,7 +61,7 @@ bool Decode::size_control()
 	return get_size() == (hex_message.length() - position) / 2;
 }
 
-unsigned long Decode::get_integer(int max_length)
+unsigned long Decode::get_integer(unsigned long max_length)
 {
 	if ( get_next_hex_string() != Codes::INTEGER )
 		throw runtime_error("Integer is not defined.");
@@ -238,7 +238,7 @@ Filter_t Decode::get_filter()
 		filter.Substrings = get_substrings();
 	} else if ( type == Codes::FilterEqualityMatch ) {
 		filter.Type = FilterType_e::EqualityMatch;
-		get_size(); // Todo What to do with size?
+		get_size(); // We do not use size further.
 		filter.EqualityMatch.AttributeDesc = get_string();
 		filter.EqualityMatch.AssertionValue = get_string();
 	} else {
@@ -317,9 +317,9 @@ SearchRequest_t Decode::get_searchRequest()
 	// Filter
 	try {
 		request.Filter = get_filter();
-	} catch (...) {
-		// Todo Error reporting.
-		throw;
+	} catch (runtime_error &e) {
+		error.set_error(ResultCode_e::PROTOCOL_ERROR, string("SearchRequest Filter: ") + e.what() );
+		throw runtime_error(error.get_message());
 	}
 	
 	return request;

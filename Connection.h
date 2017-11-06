@@ -7,8 +7,6 @@
  * Listening, binding, sending and receiving data is done trough these functions.
  */
 
-// TODO MAKE IT NON BLOCKING ( SOCK_STREAM | SOCK_NONBLOCK )
-
 #ifndef ISA_LDAP_SERVER_CONNECTION_H
 #define ISA_LDAP_SERVER_CONNECTION_H
 

@@ -1,5 +1,4 @@
 #include <netinet/in.h>
-#include <iostream>
 #include <unistd.h>
 #include <cstring>
 #include <sstream>
@@ -25,6 +24,8 @@ void Connection::server_up()
 {
 	struct sockaddr_in server;
 
+	// TODO Non blocking server.
+	
 	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_sock == -1)
 		throw runtime_error("Could not create socket");
@@ -99,7 +100,7 @@ vector<unsigned char> Connection::hex_to_bytes(const string& hex) {
 void Connection::send_message(const string &msg)
 {
 	vector<unsigned char> message = hex_to_bytes(msg);
-	while ( send(socket_desc, &message[0], message.size(), 0) != message.size() )
+	while ( (size_t)send(socket_desc, &message[0], message.size(), 0) != message.size() )
 		throw runtime_error("Sending failed.");
 	
 }

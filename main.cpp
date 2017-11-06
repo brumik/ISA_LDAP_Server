@@ -73,29 +73,25 @@ void process_request(Connection con)
 
 int main(int argc, char *argv[])
 {
-//	Database db(argv[4]);
-//	vector<string> v;
-//	cout << db.filter_by_uid_substrings("xbe", v, "02").toString();
-//	return 0;
-	
 	// Argument processing
 	long port = 389;
     string file;
     int c;
-    while ((c = getopt (argc, argv, "f:p:")) != -1)
-        switch (c) {
-            case 'f':
-                file = optarg;
-                break;
-            case 'p':
-                port = strtol(optarg, nullptr, 10);
-                break;
-            case '?':
-                cerr << "Invalid arguments." << endl;
-                return EXIT_WRONG_ARGS;
-            default:
-                return EXIT_WRONG_ARGS;
-        }
+    while ( (c = getopt (argc, argv, "f:p:")) != -1 ) {
+	    switch ( c ) {
+		    case 'f':
+			    file = optarg;
+			    break;
+		    case 'p':
+			    port = strtol(optarg, nullptr, 10);
+			    break;
+		    case '?':
+			    cerr << "Invalid arguments." << endl;
+			    return EXIT_WRONG_ARGS;
+		    default:
+			    return EXIT_WRONG_ARGS;
+	    }
+    }
 	
 	// Creating the connection and trying to create the child process.
 	// If cannot create the child process ends with the appropriate message.

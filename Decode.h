@@ -2,7 +2,7 @@
  * @file Decode.h
  * @author Levente Berky
  *
- * TODO
+ * This file contains the class to decode the hex message with requests.
  */
 
 #ifndef ISA_LDAP_SERVER_DECODE_H
@@ -61,7 +61,7 @@ private:
 	 * @param max_length Max length of hex string.
 	 * @return Unsigned integer.
 	 */
-	unsigned long get_integer(int max_length = 255);
+	unsigned long get_integer(unsigned long max_length = 255);
 	
 	/**
 	 * Returns the next boolean value grom hex_message.
