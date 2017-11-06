@@ -206,10 +206,10 @@ Substrings_t Decode::get_substrings()
 			throw runtime_error("Substring item not starting with sequence.");
 		
 		if ( get_size_in_char()  != end_position - position )
-			throw runtime_error("The substring length is inproper.");
+			throw runtime_error("The substring length is improper.");
 		
 		// While size specified read... they will be all substrings
-		while ( end_position > position )
+		while ( end_position > position ) // TODO After 1x INIT -> INF x ANY -> 1x END
 			substrings.items.push_back( get_substring_item() );
 	} catch (runtime_error &e) {
 		throw runtime_error(string("Substring Items: ") + e.what());

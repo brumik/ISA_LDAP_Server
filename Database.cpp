@@ -6,7 +6,6 @@
 
 #include "Database.h"
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <algorithm>
 
@@ -41,78 +40,127 @@ void Database::add_entry(const DatabaseEntry &entry)
 	db.push_back(entry);
 }
 
-string Database::get_entry_variable(const DatabaseEntry& entry, const string& type)
+string Database::get_entry_variable(const DatabaseEntry& entry, Columns col)
 {
-	if ( type == "cn" )
-		return entry.cn;
-	if ( type == "uid" )
-		return entry.uid;
-	if ( type == "mail" )
-		return entry.mail;
-	
-	throw runtime_error("Not existing column in database.");
+	switch ( col ) {
+		case CN: return entry.cn;
+		case UID: return entry.uid;
+		case MAIL: return entry.mail;
+		default:
+			throw runtime_error("Not existing column in database.");
+	}
 }
 
-long Database::match_string_start(std::string str, std::string match)
+size_t Database::match_string_start(const string &str, const string &match)
 {
-	if (str.find(match) == 0)
+	if ( str.find(match) == 0 )
 		return match.length();
 	
-	return -1;
+	return string::npos;
 }
 
-bool Database::match_string_end(std::string str, std::string match)
+size_t Database::match_string_any(const string &str, const string &match, size_t pos)
 {
-	if (str.length() >= match.length())
+	return str.find(match, pos);
+}
+
+bool Database::match_string_end(const string &str, const string &match, size_t pos)
+{
+	if ( str.length() - pos >= match.length() )
 		return (0 == str.compare(str.length() - match.length(), match.length(), match));
 	else
 		return false;
 }
 
-Database Database::filter_by(const std::string& type, const std::string &filter)
+Database Database::filter_by_substrings(const string &init, const vector<string> &any_v, const string &end, Columns col)
+{
+	Database passed_entries;
+	size_t curr_pos;
+	string entry_value;
+	bool passed;
+	
+	
+	for (auto &entry : db) {
+		curr_pos = 0;
+		entry_value = get_entry_variable(entry, col);
+		
+		// Check init
+		if ( !init.empty() ) {
+			curr_pos = match_string_start(entry_value, init);
+			
+			// If not found did not passed the filter
+			if ( curr_pos == string::npos ) continue;
+		}
+		
+		// Check any
+		if ( !any_v.empty() ) {
+			passed = true;
+			
+			for (auto &any : any_v)
+				if ( !any.empty() ) {
+					curr_pos = match_string_any(entry_value, any, curr_pos);
+					
+					// If any of them fails then not passed and don't have to continue.
+					if ( curr_pos == string::npos ) {
+						passed = false;
+						break;
+					}
+				}
+			
+			// If did not passed continue.
+			if ( !passed ) continue;
+		}
+		
+		if ( !end.empty() )
+			if ( !match_string_end(entry_value, end, curr_pos) )
+				continue;
+		
+		// If gets here all filters are passed and we can add it.
+		passed_entries.add_entry(entry);
+	}
+	
+	return passed_entries;
+}
+
+Database Database::filter_by_exact(Columns col, const string &filter)
 {
 	Database passed_entries;
 	
 	for (auto &entry : this->db)
-		if ( get_entry_variable(entry, type).find(filter) != string::npos )
+		if ( get_entry_variable(entry, col) == filter )
 			passed_entries.add_entry(entry);
 	
 	return passed_entries;
 }
 
-Database Database::filter_by_exact(const std::string &type, const std::string &filter)
+Database Database::filter_by_exact_cn(const string &filter)
 {
-	Database passed_entries;
-	
-	for (auto &entry : this->db)
-		if ( get_entry_variable(entry, type) == filter )
-			passed_entries.add_entry(entry);
-	
-	return passed_entries;
+	return this->filter_by_exact(Columns::CN, filter);
 }
 
-Database Database::filter_by_cn(const std::string &filter, bool exact)
+Database Database::filter_by_exact_uid(const string &filter)
 {
-	if ( exact )
-		return this->filter_by_exact(Type_CN, filter);
-	else
-		return this->filter_by(Type_CN, filter);
+	return this->filter_by_exact(Columns::UID, filter);
 }
 
-Database Database::filter_by_uid(const std::string &filter, bool exact)
+Database Database::filter_by_exact_mail(const string &filter)
 {
-	if ( exact )
-		return this->filter_by_exact(Type_UID, filter);
-	else
-		return this->filter_by(Type_UID, filter);
+	return this->filter_by_exact(Columns::MAIL, filter);
 }
 
-Database Database::filter_by_mail(const std::string &filter, bool exact)
+Database Database::filter_by_cn_substrings(const string &init, const vector<string> &any_v, const string &end)
 {
-	if ( exact )
-		return this->filter_by_exact(Type_MAIL, filter);
-	else
-		return this->filter_by(Type_MAIL, filter);
+	return filter_by_substrings(init, any_v, end, Columns::CN);
+}
+
+Database Database::filter_by_uid_substrings(const string &init, const vector<string> &any_v, const string &end)
+{
+	return filter_by_substrings(init, any_v, end, Columns::UID);
+}
+
+Database Database::filter_by_mail_substrings(const string &init, const vector<string> &any_v, const string &end)
+{
+	return filter_by_substrings(init, any_v, end, Columns::MAIL);
 }
 
 Database Database::filter_not(Database exclude)

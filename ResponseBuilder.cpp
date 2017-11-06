@@ -9,7 +9,6 @@ using namespace std;
 
 ResponseBuilder::ResponseBuilder(Database &database)
 {
-	bind = false;
 	matchedDN = "";
 	db = database;
 }
@@ -23,25 +22,48 @@ LDAPResult_t ResponseBuilder::create_result(Error &error)
 	return result;
 }
 
-Database ResponseBuilder::request_filter(Filter_t filter)
+Database ResponseBuilder::request_filter_substring(const Substrings_t &substrings)
 {
-	Database entries;
+	string init, end;
+	vector<string> any;
 	
+	// Build search strings and vectors.
+	for ( auto &item : substrings.items )
+		if ( item.Type == Substring_Item_Type_e::Initial )
+			init = item.data;
+		else if ( item.Type == Substring_Item_Type_e::Any )
+			any.push_back(item.data);
+		else if ( item.Type == Substring_Item_Type_e::Final )
+			end = item.data;
+		else throw runtime_error("ResponseBuilder: Invalid Substring Item Type.");
+	
+	if ( substrings.Type == Database::Type_CN )
+		return db.filter_by_cn_substrings(init, any, end);
+	else if ( substrings.Type == Database::Type_UID )
+		return db.filter_by_uid_substrings(init, any, end);
+	else if ( substrings.Type == Database::Type_MAIL )
+		return db.filter_by_mail_substrings(init, any, end);
+	else throw runtime_error("Response Builder: EqualityMatch containing non existing attribute.");
+}
+
+Database ResponseBuilder::request_filter(const Filter_t &filter)
+{
 	if ( filter.Type == FilterType_e::EqualityMatch ) {
 		if ( filter.EqualityMatch.AttributeDesc == Database::Type_CN )
-			entries = db.filter_by_cn(filter.EqualityMatch.AssertionValue, true);
+			return db.filter_by_exact_cn(filter.EqualityMatch.AssertionValue);
+			
 		else if ( filter.EqualityMatch.AttributeDesc == Database::Type_UID )
-			entries = db.filter_by_uid(filter.EqualityMatch.AssertionValue, true);
+			return db.filter_by_exact_uid(filter.EqualityMatch.AssertionValue);
+			
 		else if ( filter.EqualityMatch.AttributeDesc == Database::Type_MAIL )
-			entries = db.filter_by_mail(filter.EqualityMatch.AssertionValue, true);
-		else
-			throw runtime_error("Requested filter containing non existing attribute.");
+			return db.filter_by_exact_mail(filter.EqualityMatch.AssertionValue);
+			
+		else throw runtime_error("Response Builder: EqualityMatch containing non existing attribute.");
+		
 	} else if ( filter.Type == FilterType_e::Substrings ) {
-		// TODO
-	}
-	
-	
-	return entries;
+		return request_filter_substring(filter.Substrings);
+		
+	} else throw runtime_error("Filter type not supported.");
 }
 
 vector<LDAPMessage_t> ResponseBuilder::generate_entries_response(const LDAPMessage_t &request)

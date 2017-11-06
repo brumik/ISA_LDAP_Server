@@ -18,12 +18,15 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class Database {
 private:
+	enum Columns { CN, UID, MAIL };
 	struct DatabaseEntry {
-		std::string cn;
-		std::string uid;
-		std::string mail;
+		string cn;
+		string uid;
+		string mail;
 		
 		bool operator<(const DatabaseEntry& rhs) const
 		{
@@ -36,7 +39,7 @@ private:
 		}
 	};
 	
-	std::vector<DatabaseEntry> db;
+	vector<DatabaseEntry> db;
 	
 protected:
 	/**
@@ -50,28 +53,19 @@ protected:
 	 * Actually only converts type string to the corresponding entry field.
 	 *
 	 * @param entry The entry which field is returned.
-	 * @param type The type of the field returned.
+	 * @param col The type of the field returned.
 	 * @return All field are strings, so we return the field as string.
 	 */
-	static std::string get_entry_variable(const DatabaseEntry& entry, const std::string& type);
-	
-	/**
-	 * Filters the db by the given value the given entry type.
-	 *
-	 * @param type The type of the filtered entry value ... uid, mail, cn.
-	 * @param filter The value passes the filter if contains this string.
-	 * @return A new database only with entries which passed the filter.
-	 */
-	Database filter_by(const std::string& type, const std::string& filter);
+	static string get_entry_variable(const DatabaseEntry& entry, Columns col);
 	
 	/**
 	 * Filters the db by the given filter. Matches only exact strings.
 	 *
-	 * @param type The type of the filtered entry value ... uid, mail, cn.
+	 * @param col The type of the filtered entry value ... uid, mail, cn.
 	 * @param filter The value passes the filter if matches this string.
 	 * @return A new database only with entries which passed the filter.
 	 */
-	Database filter_by_exact(const std::string& type, const std::string& filter);
+	Database filter_by_exact(Columns col, const string& filter);
 	
 	/**
 	 * Searches the given string with match.
@@ -80,20 +74,50 @@ protected:
 	 * @param match The string which we are looking for.
 	 * @return The position where the string ends or -1 if not found.
 	 */
-	long match_string_start(std::string str, std::string match);
+	size_t match_string_start(const string &str, const string &match);
+	
+	/**
+	 * Searches the given string with match anywhere.
+	 *
+	 * @param str The string to search for start.
+	 * @param match The string which we are looking for.
+	 * @param pos The positing where to start te search.
+	 * @return The position where the string ends or -1 if not found.
+	 */
+	size_t match_string_any(const string &str, const string &match, size_t pos);
 	
 	/**
 	 * Searches the given string end with match.
 	 *
 	 * @param str The string to search for ending.
 	 * @param match The string which we are looking for.
+	 * @param pos The positing where to start te search.
 	 * @return True if there is a match. Otherwise false.
 	 */
-	bool match_string_end(std::string str, std::string match);
+	bool match_string_end(const string &str, const string &match, size_t pos);
+	
+	/**
+	 * Matches a substring query. Matches 'This is a text' as 'Thi*s*a*xt' where
+	 * init is 'Thi', any are 's' and 'a' and end is 'xt'.
+	 * 
+	 * Inside this function we test against end of the string.
+	 * If any of filters: start, (any of any_v), end reaches end of the string we 
+	 * know that did not passed the filter. Otherwise we add to the new database.
+	 *
+	 * I did not broke this function into smaller ones because its pretty obvious in this form too.
+	 * 
+	 * @param init The entire has to start with this.
+	 * @param any The entry most contain these strings in the order they are.
+	 * @param end The entry has to end with this string.
+	 * @param col The column to match the filter.
+	 * @return  A new database only whit entries passed by this filter.
+	 */
+	Database filter_by_substrings(const string &init, const vector<string> &any_v,
+	                              const string &end, Columns col);
 	
 public:
-	static constexpr const char* Type_UID = "uid";
 	static constexpr const char* Type_CN = "cn";
+	static constexpr const char* Type_UID = "uid";
 	static constexpr const char* Type_MAIL = "mail";
 	
 	/**
@@ -108,37 +132,64 @@ public:
 	 * @param filename Path to the csv file.
 	 * @return The database read rom the csv file.
 	 */
-	explicit Database(const std::string& filename);
+	explicit Database(const string& filename);
 	
 	/**
 	 * Filters the given db by Cn.
 	 *
 	 * @param filter The cn passes the filter if contains this string.
-	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
-	Database filter_by_cn(const std::string& filter, bool exact=false);
+	Database filter_by_exact_cn(const string &filter);
 	
 	/**
 	 * Filters the given db by uid.
 	 *
 	 * @param filter The uid passes the filter if contains this string.
-	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
-	Database filter_by_uid(const std::string& filter, bool exact);
+	Database filter_by_exact_uid(const string &filter);
 	
 	/**
 	 * Filters the given db by Mail.
 	 *
 	 * @param filter The mail passes the filter if contains this string.
-	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
-	Database filter_by_mail(const std::string& filter, bool exact);
+	Database filter_by_exact_mail(const string &filter);
+	
+	/**
+	 * Calls the filter by function on specified column.
+	 * 
+	 * @param init The entire has to start with this.
+	 * @param any The entry most contain these strings in the order they are.
+	 * @param end The entry has to end with this string.
+	 * @return  A new database only whit entries passed by this filter.
+	 */
+	Database filter_by_cn_substrings(const string &init, const vector<string> &any_v, const string &end);
+	
+	/**
+	 * Calls the filter by function on specified column.
+	 * 
+	 * @param init The entire has to start with this.
+	 * @param any The entry most contain these strings in the order they are.
+	 * @param end The entry has to end with this string.
+	 * @return  A new database only whit entries passed by this filter.
+	 */
+	Database filter_by_uid_substrings(const string &init, const vector<string> &any_v, const string &end);
+	
+	/**
+	 * Calls the filter by function on specified column.
+	 * 
+	 * @param init The entire has to start with this.
+	 * @param any The entry most contain these strings in the order they are.
+	 * @param end The entry has to end with this string.
+	 * @return  A new database only whit entries passed by this filter.
+	 */
+	Database filter_by_mail_substrings(const string &init, const vector<string> &any_v, const string &end);
 	
 	/**
 	 * Filters database to not to contain given database.
@@ -171,14 +222,14 @@ public:
 	 * Returns the entries as iterable.
 	 * @return The db.
 	 */
-	std::vector<DatabaseEntry> get_entries();
+	vector<DatabaseEntry> get_entries();
 	
 	/**
 	 * Creates printable format from the database.
 	 *
 	 * @return String with database formatted to 'cn, uid, mail \n'.
 	 */
-	std::string toString();
+	string toString();
 };
 
 #endif //ISA_LDAP_SERVER_DATABASE_H

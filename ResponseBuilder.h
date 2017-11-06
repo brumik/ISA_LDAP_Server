@@ -15,7 +15,6 @@
 
 class ResponseBuilder {
 private:
-	bool bind;
 	std::string matchedDN;
 	Database db;
 	
@@ -27,7 +26,21 @@ private:
 	 */
 	LDAPResult_t create_result(Error &error);
 	
-	Database request_filter(Filter_t filter);
+	/**
+	 * Using Database operations select and returns proper entries for the request.
+	 *
+	 * @param substring The substring filter to filter the entries.
+	 * @return The database filled with result entries.
+	 */
+	Database request_filter_substring(const Substrings_t &substrings);
+	
+	/**
+	 * Using Database operations select and returns proper entries for the request.
+	 *
+	 * @param filter The filter to filter the entries.
+	 * @return The database filled with result entries.
+	 */
+	Database request_filter(const Filter_t &filter);
 	
 public:
 	/**

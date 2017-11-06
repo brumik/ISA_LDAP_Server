@@ -73,6 +73,11 @@ void process_request(Connection con)
 
 int main(int argc, char *argv[])
 {
+//	Database db(argv[4]);
+//	vector<string> v;
+//	cout << db.filter_by_uid_substrings("xbe", v, "02").toString();
+//	return 0;
+	
 	// Argument processing
 	long port = 389;
     string file;
