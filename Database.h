@@ -3,7 +3,7 @@
  * @author Levente Berky
  * @email xberky02@stud.fit.vutbr.cz
  *
- * This static class manages the database.
+ * This class manages the database.
  * Reading in, filtering and printing.
  *
  * Usage:
@@ -12,8 +12,8 @@
  * If you don't want to lose the main db just don't overwrite it. The filters do not modify the class.
  */
 
-#ifndef ISA_LDAP_SERVER_FILESEARCH_H
-#define ISA_LDAP_SERVER_FILESEARCH_H
+#ifndef ISA_LDAP_SERVER_DATABASE_H
+#define ISA_LDAP_SERVER_DATABASE_H
 
 #include <string>
 #include <vector>
@@ -39,7 +39,6 @@ private:
 	std::vector<DatabaseEntry> db;
 	
 protected:
-	
 	/**
 	 * Adds a single entry to the db.
 	 *
@@ -74,7 +73,32 @@ protected:
 	 */
 	Database filter_by_exact(const std::string& type, const std::string& filter);
 	
+	/**
+	 * Searches the given string with match.
+	 *
+	 * @param str The string to search for start.
+	 * @param match The string which we are looking for.
+	 * @return The position where the string ends or -1 if not found.
+	 */
+	long match_string_start(std::string str, std::string match);
+	
+	/**
+	 * Searches the given string end with match.
+	 *
+	 * @param str The string to search for ending.
+	 * @param match The string which we are looking for.
+	 * @return True if there is a match. Otherwise false.
+	 */
+	bool match_string_end(std::string str, std::string match);
+	
 public:
+	static constexpr const char* Type_UID = "uid";
+	static constexpr const char* Type_CN = "cn";
+	static constexpr const char* Type_MAIL = "mail";
+	
+	/**
+	 * Constructor.
+	 */
 	Database()=default;
 	
 	/**
@@ -90,6 +114,7 @@ public:
 	 * Filters the given db by Cn.
 	 *
 	 * @param filter The cn passes the filter if contains this string.
+	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
@@ -99,19 +124,21 @@ public:
 	 * Filters the given db by uid.
 	 *
 	 * @param filter The uid passes the filter if contains this string.
+	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
-	Database filter_by_uid(const std::string& filter);
+	Database filter_by_uid(const std::string& filter, bool exact);
 	
 	/**
 	 * Filters the given db by Mail.
 	 *
 	 * @param filter The mail passes the filter if contains this string.
+	 * @param exact If true matches the whole string.
 	 * @return A new database only with entries which passed the filter.
 	 * @sa filter_by()
 	 */
-	Database filter_by_mail(const std::string& filter);
+	Database filter_by_mail(const std::string& filter, bool exact);
 	
 	/**
 	 * Filters database to not to contain given database.
@@ -141,6 +168,12 @@ public:
 	Database filter_or(Database db_union);
 	
 	/**
+	 * Returns the entries as iterable.
+	 * @return The db.
+	 */
+	std::vector<DatabaseEntry> get_entries();
+	
+	/**
 	 * Creates printable format from the database.
 	 *
 	 * @return String with database formatted to 'cn, uid, mail \n'.
@@ -148,4 +181,4 @@ public:
 	std::string toString();
 };
 
-#endif //ISA_LDAP_SERVER_FILESEARCH_H
+#endif //ISA_LDAP_SERVER_DATABASE_H

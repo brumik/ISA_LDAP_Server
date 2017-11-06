@@ -6,7 +6,7 @@
  */
 
 #include <sstream>
-#include <iostream>
+#include <algorithm>
 #include "Decode.h"
 
 using namespace std;
@@ -16,6 +16,13 @@ Decode::Decode()
 	hex_message = "";
 	position = 0;
 	error.clear();
+}
+
+bool Decode::id_used(unsigned long id)
+{
+	bool used = ( std::find(usedID.begin(), usedID.end(), id) != usedID.end() );
+	usedID.push_back(id);
+	return used;
 }
 
 string Decode::get_next_hex_string(unsigned long num)
@@ -338,6 +345,11 @@ LDAPMessage_t Decode::decode_to_struct(std::string &to_decode)
 	}
 	
 	message.MessageID = get_messageID();
+	
+	if ( id_used(message.MessageID) ) {
+		error.set_error(ResultCode_e::PROTOCOL_ERROR, "Multiple times used ID.");
+		throw runtime_error(error.get_message());
+	}
 	
 	// Determine what kind of message we got and do the appropriate action.
 	string type = get_next_hex_string();

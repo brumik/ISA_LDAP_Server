@@ -16,7 +16,16 @@ class Decode {
 private:
 	std::string hex_message;
 	unsigned int position;
+	std::vector<unsigned long> usedID;
 	Error error;
+	
+	/**
+	 * Checks if message id is unique. As addition adds the current id into usedID.
+	 *
+	 * @param id The message id.
+	 * @return True if message id was used. Otherwise false.
+	 */
+	bool id_used(unsigned long id);
 	
 	/**
 	 * Returns the next two characters from string and deletes them from the hex message.

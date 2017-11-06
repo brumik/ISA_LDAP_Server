@@ -22,6 +22,14 @@ public:
 	Error();
 	
 	/**
+	 * Constructor for error.
+	 *
+	 * @param code Error code.
+	 * @param message Error message.
+	 */
+	Error(unsigned code, const std::string &message);
+	
+	/**
 	 * Sets the error to the given code and the given message.
 	 *
 	 * @param code The error code.

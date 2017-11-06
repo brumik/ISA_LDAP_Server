@@ -173,6 +173,7 @@ public:
 	static constexpr const char* FilterSubstringItemFinal = "82";
 	
 	// Search Response Entry
+	static constexpr const char* ResponseEntryAttributes = "30";
 	static constexpr const char* ResponseEntryPartialAttribute = "30";
 	static constexpr const char* ResponseEntryPartialAttributeValues = "31";
 	

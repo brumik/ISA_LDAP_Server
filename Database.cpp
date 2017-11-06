@@ -50,7 +50,23 @@ string Database::get_entry_variable(const DatabaseEntry& entry, const string& ty
 	if ( type == "mail" )
 		return entry.mail;
 	
-	return nullptr;
+	throw runtime_error("Not existing column in database.");
+}
+
+long Database::match_string_start(std::string str, std::string match)
+{
+	if (str.find(match) == 0)
+		return match.length();
+	
+	return -1;
+}
+
+bool Database::match_string_end(std::string str, std::string match)
+{
+	if (str.length() >= match.length())
+		return (0 == str.compare(str.length() - match.length(), match.length(), match));
+	else
+		return false;
 }
 
 Database Database::filter_by(const std::string& type, const std::string &filter)
@@ -75,22 +91,28 @@ Database Database::filter_by_exact(const std::string &type, const std::string &f
 	return passed_entries;
 }
 
-Database Database::filter_by_cn(const std::string &filter, const bool exact)
+Database Database::filter_by_cn(const std::string &filter, bool exact)
 {
 	if ( exact )
-		return this->filter_by_exact("cn", filter);
+		return this->filter_by_exact(Type_CN, filter);
 	else
-		return this->filter_by("cn", filter);
+		return this->filter_by(Type_CN, filter);
 }
 
-Database Database::filter_by_uid(const std::string &filter)
+Database Database::filter_by_uid(const std::string &filter, bool exact)
 {
-	return this->filter_by("uid", filter);
+	if ( exact )
+		return this->filter_by_exact(Type_UID, filter);
+	else
+		return this->filter_by(Type_UID, filter);
 }
 
-Database Database::filter_by_mail(const std::string &filter)
+Database Database::filter_by_mail(const std::string &filter, bool exact)
 {
-	return this->filter_by("mail", filter);
+	if ( exact )
+		return this->filter_by_exact(Type_MAIL, filter);
+	else
+		return this->filter_by(Type_MAIL, filter);
 }
 
 Database Database::filter_not(Database exclude)
@@ -133,6 +155,11 @@ Database Database::filter_or(Database db_union)
 	                 back_inserter(passed_entries.db));
 	
 	return passed_entries;
+}
+
+vector<Database::DatabaseEntry> Database::get_entries()
+{
+	return db;
 }
 
 string Database::toString()

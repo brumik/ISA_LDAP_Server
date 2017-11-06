@@ -102,11 +102,17 @@ string Encode::struct_to_hex(const LDAPResult_t &result, const std::string &code
 string Encode::struct_to_hex(const SearchResultEntry_t &entry)
 {
 	string ObjectName = create_string(entry.ObjectName);
-	string Attributes;
 	
+	// Creating Attributes
+	string AttributeValues;
 	for (const PartialAttributeList_t &attr : entry.Attributes)
-		Attributes += create_partial_attribute(attr);
+		AttributeValues += create_partial_attribute(attr);
 	
+	string Attributes = Codes::ResponseEntryAttributes;
+	Attributes += size_to_hex( AttributeValues.length() );
+	Attributes += AttributeValues;
+	
+	// Creating return string
 	string ret = Codes::SearchResultEntry;
 	ret += size_to_hex( ObjectName.length() + Attributes.length() );
 	ret += ObjectName + Attributes;

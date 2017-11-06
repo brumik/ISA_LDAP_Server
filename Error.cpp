@@ -14,6 +14,12 @@ Error::Error()
 	message = "";
 }
 
+Error::Error(unsigned int code, const std::string &message)
+{
+	this->code = static_cast<ResultCode_e>(code);
+	this->message = message;
+}
+
 void Error::set_error(unsigned code, const std::string &message)
 {
 	this->code = static_cast<ResultCode_e>(code);
