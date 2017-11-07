@@ -21,5 +21,5 @@ clean:
 zip:
 	zip $(ZIPNAME) $(ZIPFILES)
 
-run: server
+run: myldap
 	./myldap -p 38900 -f ./isa2017-ldap.csv
