@@ -134,7 +134,6 @@ LDAPMessage_t ResponseBuilder::generate_response(const LDAPMessage_t &request, E
 	// Here we wont check if ID us already used because we already sending error back.
 	
 	if ( request.MessageType == LDAPMessageType_t::BindRequest ) {
-		matchedDN = request.BindRequest.Name;
 		message.MessageType = LDAPMessageType_t::BindResponse;
 	} else if ( request.MessageType == LDAPMessageType_t::SearchRequest )
 		message.MessageType = LDAPMessageType_t::SearchResultDone;

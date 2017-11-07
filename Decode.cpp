@@ -160,10 +160,13 @@ BindRequest_t Decode::get_bindRequest()
 	}
 	
 	// Auth type of client.
-	if ( get_next_hex_string(2) != Codes::SIMPLE_AUTH ) {
+	if ( get_next_hex_string() != Codes::SIMPLE_AUTH ) {
 		error.set_error(ResultCode_e::AUTH_NOT_SUPPORTED, "Not simple auth whiteout password.");
 		throw runtime_error(error.get_message());
 	}
+	
+	// Here we read the password size and the string but we do not use.
+	hex_to_string( get_next_hex_string(get_size()) );
 	
 	return request;
 }
@@ -208,8 +211,21 @@ Substrings_t Decode::get_substrings()
 			throw runtime_error("The substring length is improper.");
 		
 		// While size specified read... they will be all substrings
-		while ( end_position > position ) // TODO After 1x INIT -> INF x ANY -> 1x END
-			substrings.items.push_back( get_substring_item() );
+		int where = 0; // 0 = before Init, 1 = init, 2 = any, 3 = final
+		while ( end_position > position ) {
+			Substring_Item_t item = get_substring_item();
+			
+			if ( item.Type == Substring_Item_Type_e::Initial && where == 0 )
+				where = 1; // Set to init
+			else if ( item.Type == Substring_Item_Type_e::Any && where < 3 )
+				where = 2; // Set to in any
+			else if ( item.Type == Substring_Item_Type_e::Final && where < 3 )
+				where = 3; // Set to final
+			else throw runtime_error("Substrings did not followed the Init -> any[] -> Final order.");
+			
+			// If passed all push to substrings.
+			substrings.items.push_back( item );
+		}
 	} catch (runtime_error &e) {
 		throw runtime_error(string("Substring Items: ") + e.what());
 	}

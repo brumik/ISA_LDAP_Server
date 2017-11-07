@@ -142,7 +142,7 @@ public:
 	static constexpr const char* INTEGER = "02";
 	static constexpr const char* OCTET_STRING = "04";
 	static constexpr const char* ENUMERATED = "0a";
-	static constexpr const char* SIMPLE_AUTH = "8000";
+	static constexpr const char* SIMPLE_AUTH = "80";
 	
 	// Structure types
 	static constexpr const char* LDAPMessage = "30";

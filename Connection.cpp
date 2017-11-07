@@ -16,17 +16,16 @@ Connection::Connection(long port)
 
 void Connection::server_up()
 {
-	struct sockaddr_in server;
-
-	// TODO Non blocking server.
+	sockaddr_in6 server;
+	memset(&server, 0, sizeof(server));
 	
-	server_sock = socket(AF_INET, SOCK_STREAM, 0);
+	server_sock = socket(AF_INET6, SOCK_STREAM, 0);
 	if (server_sock == -1)
 		throw runtime_error("Could not create socket");
 	
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons((uint16_t)port);
+	server.sin6_family = AF_INET6;
+	server.sin6_addr = IN6ADDR_ANY_INIT;
+	server.sin6_port = htons((uint16_t)port);
 	
 	if (bind(server_sock, (struct sockaddr *) &server, sizeof(server)) < 0)
 		throw runtime_error(string("Binding failed on port: ") + to_string(port));
@@ -36,10 +35,7 @@ void Connection::server_up()
 
 void Connection::accept_loop(void (*callback)(Connection))
 {
-	struct sockaddr_in client;
-	int c = sizeof(struct sockaddr_in);
-	
-	while ((socket_desc = accept(server_sock, (struct sockaddr *) &client, (socklen_t *) &c))) {
+	while ( (socket_desc = accept(server_sock, nullptr, nullptr)) ) {
 		if (socket_desc < 0)
 			throw runtime_error("Connection failed.");
 		
@@ -99,8 +95,13 @@ void Connection::send_message(const string &msg)
 	
 }
 
-Connection::~Connection()
+void Connection::close_sockets()
 {
 	close(socket_desc);
 	close(server_sock);
+}
+
+Connection::~Connection()
+{
+	this->close_sockets();
 }

@@ -69,6 +69,11 @@ public:
 	 */
     void send_message(const std::string &msg);
 
+	/**
+	 * Closes all sockets.
+	 */
+	void close_sockets();
+	
     /**
      * Destructor, closes all sockets.
      */
