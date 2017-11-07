@@ -13,6 +13,11 @@ using namespace std;
 
 Database::Database(const string& filename)
 {
+	open(filename);
+}
+
+void Database::open(const string &filename)
+{
 	ifstream inStream;
 	DatabaseEntry temp;
 	
@@ -22,8 +27,8 @@ Database::Database(const string& filename)
 		if ( !inStream ) throw runtime_error("File not found or could not be opened.");
 		
 		while   (	getline(inStream, temp.cn, ';') &&
-		            getline(inStream, temp.uid,   ';') &&
-		            getline(inStream, temp.mail)
+		             getline(inStream, temp.uid,   ';') &&
+		             getline(inStream, temp.mail)
 				)
 		{
 			this->add_entry(temp);

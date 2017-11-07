@@ -132,7 +132,14 @@ public:
 	 * @param filename Path to the csv file.
 	 * @return The database read rom the csv file.
 	 */
-	explicit Database(const string& filename);
+	explicit Database(const string &filename);
+	
+	/**
+	 * Reads the database from the file.
+	 *
+	 * @param filename File path containing the database csv.
+	 */
+	void open(const string &filename);
 	
 	/**
 	 * Filters the given db by Cn.

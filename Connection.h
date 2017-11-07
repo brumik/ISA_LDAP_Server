@@ -19,7 +19,6 @@ class Connection {
 
 private:
     long port;
-	std::string filename;
 	
     int server_sock;
     int socket_desc;
@@ -31,14 +30,7 @@ public:
      * @param port The port to run the server
      * @param filename The path to the database csv.
      */
-    Connection(long port, const std::string& filename);
-	
-	/**
-	 * Filename getter.
-	 *
-	 * @return Filename
-	 */
-	std::string get_filename();
+    explicit Connection(long port);
 
     /**
      * Prepares the server to listen and starts to listen.

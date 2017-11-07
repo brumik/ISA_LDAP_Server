@@ -9,15 +9,9 @@
 
 using namespace std;
 
-Connection::Connection(long port, const string& filename)
+Connection::Connection(long port)
 {
 	this->port = port;
-	this->filename = filename;
-}
-
-string Connection::get_filename()
-{
-	return filename;
 }
 
 void Connection::server_up()
@@ -35,7 +29,7 @@ void Connection::server_up()
 	server.sin_port = htons((uint16_t)port);
 	
 	if (bind(server_sock, (struct sockaddr *) &server, sizeof(server)) < 0)
-		throw runtime_error("Binding failed.");
+		throw runtime_error(string("Binding failed on port: ") + to_string(port));
 		
 	listen(server_sock, 3);
 }

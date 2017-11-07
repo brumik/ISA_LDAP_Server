@@ -11,10 +11,11 @@
 
 using namespace std;
 
+// The database all process will use.
+Database db;
+
 void process_request(Connection con)
 {
-	// Variables used
-	Database db(con.get_filename());
 	ResponseBuilder builder(db);
 	
 	Decode decoder;
@@ -89,10 +90,16 @@ int main(int argc, char *argv[])
 	    }
     }
 	
+	if ( file.empty() ) {
+		cerr << "File not specified. Use -f <filename>" << endl;
+		return EXIT_WRONG_ARGS;
+	}
+	
 	// Creating the connection and trying to create the child process.
 	// If cannot create the child process ends with the appropriate message.
-	Connection con(port, file);
+	Connection con(port);
 	try {
+		db.open(file);
 		con.server_up();
 		con.accept_loop(process_request);
 	} catch (const runtime_error &e) {
