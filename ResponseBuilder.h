@@ -37,6 +37,14 @@ private:
 	/**
 	 * Using Database operations select and returns proper entries for the request.
 	 *
+	 * @param equality The equality match filter to filter the entries.
+	 * @return The database filled with result entries.
+	 */
+	Database request_filter_equality(const AttributeValueAssertion_t &equality);
+	
+	/**
+	 * Using Database operations select and returns proper entries for the request.
+	 *
 	 * @param filter The filter to filter the entries.
 	 * @return The database filled with result entries.
 	 */

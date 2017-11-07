@@ -121,6 +121,13 @@ private:
 	Substrings_t get_substrings();
 	
 	/**
+	 * Fills an array with filters for the specified size.
+	 *
+	 * @return Array of filters required by filters AND or OR.
+	 */
+	std::vector<Filter_t> get_filter_vector();
+	
+	/**
 	 * Fills and returns a Filter structure from the hex_message.
 	 *
 	 * @return Filled filter.

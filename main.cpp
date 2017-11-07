@@ -6,10 +6,6 @@
 #include "Encode.h"
 #include "ResponseBuilder.h"
 
-/* Not used in this moment.
- * #include "Logger.h"
- */
-
 #define EXIT_WRONG_ARGS     1
 #define EXIT_RUNTIME_ERROR  2
 

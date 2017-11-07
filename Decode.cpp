@@ -192,8 +192,7 @@ Substrings_t Decode::get_substrings()
 {
 	Substrings_t substrings;
 	
-	unsigned long size = get_size_in_char();
-	unsigned long end_position = position + size;
+	unsigned long end_position = get_size_in_char() + position;
 	
 	try {
 		substrings.Type = get_string();
@@ -205,7 +204,7 @@ Substrings_t Decode::get_substrings()
 		if ( get_next_hex_string() != Codes::FilterSubstringItem )
 			throw runtime_error("Substring item not starting with sequence.");
 		
-		if ( get_size_in_char()  != end_position - position )
+		if ( get_size_in_char() != end_position - position )
 			throw runtime_error("The substring length is improper.");
 		
 		// While size specified read... they will be all substrings
@@ -218,6 +217,18 @@ Substrings_t Decode::get_substrings()
 	return substrings;
 }
 
+std::vector<Filter_t> Decode::get_filter_vector()
+{
+	vector<Filter_t> filters;
+	
+	unsigned long end_position = get_size_in_char() + position;
+	
+	while ( position < end_position )
+		filters.push_back(get_filter());
+	
+	return filters;
+}
+
 Filter_t Decode::get_filter()
 {
 	Filter_t filter;
@@ -226,13 +237,17 @@ Filter_t Decode::get_filter()
 	
 	if ( type == Codes::FilterAnd ) {
 		filter.Type = FilterType_e::And;
-		// Todo And
+		filter.And = get_filter_vector();
 	} else if ( type == Codes::FilterOr ) {
 		filter.Type = FilterType_e::Or;
-		// Todo Or
+		filter.Or = get_filter_vector();
 	} else if ( type == Codes::FilterNot ) {
 		filter.Type = FilterType_e::Not;
-		// Todo Not
+		get_size(); // We do not use size further.
+		if ( filter.Not.empty() )
+			filter.Not.push_back( get_filter() );
+		else
+			throw runtime_error("Don't think that this is reachable, but i think I got multiple NOT filters.");
 	} else if ( type == Codes::FilterSubstring ) {
 		filter.Type = FilterType_e::Substrings;
 		filter.Substrings = get_substrings();

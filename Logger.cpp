@@ -23,12 +23,27 @@ string Logger::print_filter(const Filter_t &filter)
 {
 	stringstream stream;
 	stream << "\tType: " << filter.Type << endl;
-	if ( filter.Type == FilterType_e::And )
-		stream << "\tAnd: TODO" << endl;
-	else if ( filter.Type == FilterType_e::Or )
-		stream << "\tOr: TODO" << endl;
-	else if ( filter.Type == FilterType_e::Not )
-		stream << "\tNot: TODO" << endl;
+	if ( filter.Type == FilterType_e::And ) {
+		stream << "\tAND Filter: {" << endl;
+		stream << "------------------------------------" << endl;
+		for ( auto &f : filter.And )
+			stream << print_filter(f);
+		stream << "------------------------------------" << endl;
+		stream << "\t} AND" << endl;
+	} else if ( filter.Type == FilterType_e::Or ) {
+		stream << "\tOR Filter: {" << endl;
+		stream << "------------------------------------" << endl;
+		for ( auto &f : filter.Or )
+			stream << print_filter(f);
+		stream << "------------------------------------" << endl;
+		stream << "\t} OR" << endl;
+	} else if ( filter.Type == FilterType_e::Not ) {
+		stream << "\tNOT Filter: {" << endl;
+		stream << "------------------------------------" << endl;
+		stream << print_filter( filter.Not.at(0) );
+		stream << "------------------------------------" << endl;
+		stream << "\t} NOT" << endl;
+	}
 	else if ( filter.Type == FilterType_e::EqualityMatch )
 		stream << "\tEqualityMatch: " << filter.EqualityMatch.AttributeDesc << " -> " << filter.EqualityMatch.AssertionValue << endl;
 	else if ( filter.Type == FilterType_e::Substrings ) {

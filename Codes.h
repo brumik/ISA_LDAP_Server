@@ -70,7 +70,7 @@ struct Filter_t {
 	FilterType_e Type = FilterType_e::EqualityMatch;
 	std::vector<Filter_t> And;
 	std::vector<Filter_t> Or;
-	Filter_t *Not = nullptr;
+	std::vector<Filter_t> Not;
 	AttributeValueAssertion_t EqualityMatch;
 	Substrings_t Substrings;
 };

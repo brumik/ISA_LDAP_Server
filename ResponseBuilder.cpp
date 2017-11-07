@@ -46,23 +46,45 @@ Database ResponseBuilder::request_filter_substring(const Substrings_t &substring
 	else throw runtime_error("Response Builder: EqualityMatch containing non existing attribute.");
 }
 
+Database ResponseBuilder::request_filter_equality(const AttributeValueAssertion_t &equality)
+{
+	if ( equality.AttributeDesc == Database::Type_CN )
+		return db.filter_by_exact_cn(equality.AssertionValue);
+	
+	else if ( equality.AttributeDesc == Database::Type_UID )
+		return db.filter_by_exact_uid(equality.AssertionValue);
+	
+	else if ( equality.AttributeDesc == Database::Type_MAIL )
+		return db.filter_by_exact_mail(equality.AssertionValue);
+	
+	else throw runtime_error("Response Builder: EqualityMatch containing non existing attribute.");
+}
+
 Database ResponseBuilder::request_filter(const Filter_t &filter)
 {
 	if ( filter.Type == FilterType_e::EqualityMatch ) {
-		if ( filter.EqualityMatch.AttributeDesc == Database::Type_CN )
-			return db.filter_by_exact_cn(filter.EqualityMatch.AssertionValue);
-			
-		else if ( filter.EqualityMatch.AttributeDesc == Database::Type_UID )
-			return db.filter_by_exact_uid(filter.EqualityMatch.AssertionValue);
-			
-		else if ( filter.EqualityMatch.AttributeDesc == Database::Type_MAIL )
-			return db.filter_by_exact_mail(filter.EqualityMatch.AssertionValue);
-			
-		else throw runtime_error("Response Builder: EqualityMatch containing non existing attribute.");
+		return request_filter_equality(filter.EqualityMatch);
 		
 	} else if ( filter.Type == FilterType_e::Substrings ) {
 		return request_filter_substring(filter.Substrings);
 		
+	} else if ( filter.Type == FilterType_e::And ) {
+		Database temp = db;
+		for ( const Filter_t &f : filter.And)
+			temp = temp.filter_and( request_filter(f) );
+		
+		return temp;
+		
+	} else if ( filter.Type == FilterType_e::Or ) {
+		Database temp;
+		for ( const Filter_t &f : filter.Or)
+			temp = temp.filter_or( request_filter(f) );
+		
+		return temp;
+		
+	} else if ( filter.Type == FilterType_e::Not ) {
+		return db.filter_not( request_filter( filter.Not.at(0) ) );
+	
 	} else throw runtime_error("Filter type not supported.");
 }
 
