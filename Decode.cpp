@@ -16,6 +16,7 @@ Decode::Decode()
 	hex_message = "";
 	position = 0;
 	error.clear();
+	type = LDAPMessageType_t::BindRequest;
 }
 
 bool Decode::id_used(unsigned long id)
@@ -349,7 +350,7 @@ SearchRequest_t Decode::get_searchRequest()
 	try {
 		request.Filter = get_filter();
 	} catch (runtime_error &e) {
-		error.set_error(ResultCode_e::PROTOCOL_ERROR, string("SearchRequest Filter: ") + e.what() );
+		error.set_error(ResultCode_e::OPERATIONS_ERROR, string("SearchRequest Filter: ") + e.what() );
 		throw runtime_error(error.get_message());
 	}
 	
@@ -387,9 +388,11 @@ LDAPMessage_t Decode::decode_to_struct(std::string &to_decode)
 	
 	if ( type == Codes::BindRequest ) {
 		message.MessageType = LDAPMessageType_t::BindRequest;
+		this->type = LDAPMessageType_t::BindRequest;
 		message.BindRequest = get_bindRequest();
 	} else if ( type == Codes::SearchRequest ) {
 		message.MessageType = LDAPMessageType_t::SearchRequest;
+		this->type = LDAPMessageType_t::SearchRequest;
 		message.SearchRequest = get_searchRequest();
 	} else if ( type == Codes::UnbindRequest) {
 		message.MessageType = LDAPMessageType_t::UnbindRequest;
@@ -404,4 +407,9 @@ LDAPMessage_t Decode::decode_to_struct(std::string &to_decode)
 Error Decode::get_error()
 {
 	return error;
+}
+
+LDAPMessageType_t Decode::get_type()
+{
+	return type;
 }

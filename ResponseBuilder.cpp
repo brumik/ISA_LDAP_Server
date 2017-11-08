@@ -135,8 +135,9 @@ LDAPMessage_t ResponseBuilder::generate_response(const LDAPMessage_t &request, E
 	
 	if ( request.MessageType == LDAPMessageType_t::BindRequest ) {
 		message.MessageType = LDAPMessageType_t::BindResponse;
-	} else if ( request.MessageType == LDAPMessageType_t::SearchRequest )
+	} else if ( request.MessageType == LDAPMessageType_t::SearchRequest ) {
 		message.MessageType = LDAPMessageType_t::SearchResultDone;
+	}
 	
 	message.LDAPResult = create_result(error);
 	return message;

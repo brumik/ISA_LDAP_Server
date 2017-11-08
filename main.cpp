@@ -31,13 +31,11 @@ void process_request(Connection con)
 			
 			// Creating and sending response
 			if ( request.MessageType == LDAPMessageType_t::BindRequest ) {
-				
 				message = builder.generate_response(request, decoder.get_error());
 				hex_message = encoder.struct_to_hex(message);
 				con.send_message(hex_message);
 				
 			} else if ( request.MessageType == LDAPMessageType_t::UnbindRequest ) {
-				
 				break;
 				
 			} else if ( request.MessageType == LDAPMessageType_t::SearchRequest ) {
@@ -51,10 +49,15 @@ void process_request(Connection con)
 				hex_message = encoder.struct_to_hex(message);
 				con.send_message(hex_message);
 				
+			} else {
+				decoder.get_error().set_error(ResultCode_e::PROTOCOL_ERROR, "Request not supported");
+				throw runtime_error(decoder.get_error().get_message());
 			}
 		}
 		
 	} catch (const runtime_error &e) {
+		// Set te error request type
+		request.MessageType = decoder.get_type();
 		
 		// Send the error message.
 		message = builder.generate_response(request, decoder.get_error());

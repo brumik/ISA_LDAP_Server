@@ -18,6 +18,7 @@ private:
 	unsigned int position;
 	std::vector<unsigned long> usedID;
 	Error error;
+	LDAPMessageType_t type;
 	
 	/**
 	 * Checks if message id is unique. As addition adds the current id into usedID.
@@ -161,6 +162,12 @@ public:
 	 */
 	Error get_error();
 	
+	/**
+	 * Type getter.
+	 *
+	 * @return The type of the last request.
+	 */
+	LDAPMessageType_t get_type();
 };
 
 #endif //ISA_LDAP_SERVER_DECODE_H
