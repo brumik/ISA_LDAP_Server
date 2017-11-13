@@ -413,3 +413,11 @@ LDAPMessageType_t Decode::get_type()
 {
 	return type;
 }
+
+unsigned long Decode::get_last_id()
+{
+	if ( !usedID.empty() )
+		return usedID.back();
+	
+	return 0;
+}

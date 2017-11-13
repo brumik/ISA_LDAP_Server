@@ -168,6 +168,13 @@ public:
 	 * @return The type of the last request.
 	 */
 	LDAPMessageType_t get_type();
+	
+	/**
+	 * Last ID getter.
+	 *
+	 * @return Last message ID.
+	 */
+	unsigned long get_last_id();
 };
 
 #endif //ISA_LDAP_SERVER_DECODE_H

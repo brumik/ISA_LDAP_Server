@@ -104,13 +104,6 @@ vector<LDAPMessage_t> ResponseBuilder::generate_entries_response(const LDAPMessa
 		PartialAttributeList_t attr;
 		message.SearchResultEntry.ObjectName = entry.uid;
 
-		// Fill with CN
-		attr.Type = Database::Type_CN;
-		attr.Values.emplace_back(entry.cn);
-		message.SearchResultEntry.Attributes.push_back(attr);
-
-		attr.Values.clear();
-
 		// Fill with MAIL
 		attr.Type = Database::Type_MAIL;
 		attr.Values.emplace_back(entry.mail);

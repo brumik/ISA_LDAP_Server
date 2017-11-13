@@ -58,6 +58,7 @@ void process_request(Connection con)
 	} catch (const runtime_error &e) {
 		// Set te error request type
 		request.MessageType = decoder.get_type();
+		request.MessageID = decoder.get_last_id();
 		
 		// Send the error message.
 		message = builder.generate_response(request, decoder.get_error());
