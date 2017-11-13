@@ -5,7 +5,7 @@ DEPHEADS = Connection.h Database.h Decode.h Encode.h Error.h ResponseBuilder.h C
 DEPS = Connection.cpp Database.cpp Decode.cpp Encode.cpp Error.cpp ResponseBuilder.cpp main.cpp
 
 EXES = myldap
-ZIPFILES = *.cpp *.h *.md Makefile
+ZIPFILES = *.cpp *.h *.md Makefile *.md
 ZIPNAME = xberky02.zip
 
 all: myldap
