@@ -64,7 +64,7 @@ string Connection::get_message()
 			if ( errno == EAGAIN || errno == EWOULDBLOCK )
 				continue;
 			else
-				throw runtime_error("Bad socket transfer when receiving file.");
+				throw runtime_error("Bad socket transfer when receiving message.");
 		}
 		
 		// Converting the buffer into hex string.
@@ -99,9 +99,24 @@ vector<unsigned char> Connection::hex_to_bytes(const string& hex)
 
 void Connection::send_message(const string &msg)
 {
+	ssize_t writeSize = 0;
+	size_t totalSize = 0;
+	
+	fcntl(socket_desc, F_SETFL, O_NONBLOCK);
+	
 	vector<unsigned char> message = hex_to_bytes(msg);
-	while ( (size_t)send(socket_desc, &message[0], message.size(), 0) != message.size() )
-		throw runtime_error("Sending failed.");
+	
+	while ( totalSize < message.size() ) {
+		
+		if ( (writeSize = send(socket_desc, &message[totalSize], message.size() - totalSize, 0)) < 0 ) {
+			if ( errno == EAGAIN || errno == EWOULDBLOCK )
+				continue;
+			else
+				throw runtime_error("Bad socket transfer when sending message.");
+		}
+		
+		totalSize += writeSize;
+	}
 	
 }
 
