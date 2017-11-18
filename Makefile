@@ -5,8 +5,8 @@ DEPHEADS = Connection.h Database.h Decode.h Encode.h Error.h ResponseBuilder.h C
 DEPS = Connection.cpp Database.cpp Decode.cpp Encode.cpp Error.cpp ResponseBuilder.cpp main.cpp
 
 EXES = myldap
-ZIPFILES = *.cpp *.h *.md Makefile *.md *.pdf
-ZIPNAME = xberky02.zip
+ZIPFILES = *.cpp *.h Makefile *.md *.pdf
+ZIPNAME = xberky02.tar
 
 all: myldap
 
@@ -19,7 +19,7 @@ clean:
 	rm -f $(EXES) $(ZIPNAME)
 
 zip:
-	zip $(ZIPNAME) $(ZIPFILES)
+	tar -czvf $(ZIPNAME) $(ZIPFILES)
 
 run: myldap
 	./myldap -p 38900 -f ./isa2017-ldap.csv
