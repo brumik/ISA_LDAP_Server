@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	long port = 389;
     string file;
     int c;
-    while ( (c = getopt (argc, argv, "f:p:")) != -1 ) {
+    while ( (c = getopt (argc, argv, "f:p:h")) != -1 ) {
 	    switch ( c ) {
 		    case 'f':
 			    file = optarg;
@@ -86,8 +86,9 @@ int main(int argc, char *argv[])
 		    case 'p':
 			    port = strtol(optarg, nullptr, 10);
 			    break;
+		    case 'h':
 		    case '?':
-			    cerr << "Invalid arguments." << endl;
+			    cerr << "Usage: -p PORT -f DatabaseFilePath \nPort is optional, default is 389." << endl;
 			    return EXIT_WRONG_ARGS;
 		    default:
 			    return EXIT_WRONG_ARGS;
